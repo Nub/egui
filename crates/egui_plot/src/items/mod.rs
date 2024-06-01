@@ -528,11 +528,11 @@ impl PlotItem for Line {
             ..
         } = self;
 
-        let values_tf: Vec<_> = series
-            .points()
-            .iter()
-            .map(|v| transform.position_from_point(v))
-            .collect();
+        let tf = |v| transform.position_from_point(v);
+        let values_tf: Vec<_> = match series {
+            PlotPoints::Owned(points) => points.as_slice().iter().map(tf).collect(),
+            PlotPoints::Generator(_) => vec![],
+        };
         let n_values = values_tf.len();
 
         // Fill the area between the line and a reference line, if required.

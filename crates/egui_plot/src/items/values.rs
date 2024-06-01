@@ -195,6 +195,28 @@ impl PlotPoints {
         }
     }
 
+    pub fn push(&mut self, point: PlotPoint) -> Result<(), PlotPoint> {
+        match self {
+            Self::Owned(points) => {
+                points.push(point);
+                Ok(())
+            }
+            _ => Err(point),
+        }
+    }
+
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&PlotPoint) -> bool,
+    {
+        match self {
+            Self::Owned(points) => {
+                points.retain(f);
+            }
+            _ => (),
+        }
+    }
+
     /// Draw a line based on a function `y=f(x)`, a range (which can be infinite) for x and the number of points.
     pub fn from_explicit_callback(
         function: impl Fn(f64) -> f64 + 'static,
@@ -363,6 +385,9 @@ pub enum PlotGeometry<'a> {
 
     /// Point values (X-Y graphs)
     Points(&'a [PlotPoint]),
+
+    /// Point values (X-Y graphs)
+    // SharedPoints(Arc<Mutex<Vec<PlotPoint>>>),
 
     /// Rectangles (examples: boxes or bars)
     // Has currently no data, as it would require copying rects or iterating a list of pointers.
